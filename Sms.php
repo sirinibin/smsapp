@@ -9,6 +9,8 @@ class Sms
 
     private $originator = 'MessageBird';
 
+    public $messageLength=0;
+
     function __construct($recipients, $message, $originator)
     {
         $this->recipients = $recipients;
@@ -91,6 +93,7 @@ class Sms
         $Message->originator = $this->originator;
         $Message->recipients = $this->recipients;
         $Message->body = $this->messages[0];
+        $this->messageLength=strlen($this->messages[0]);
 
         try {
             $MessageResult = $MessageBird->messages->create($Message);
@@ -139,6 +142,8 @@ class Sms
 
             if (empty($m))
                 continue;
+
+            $this->messageLength+=strlen($m);
 
             $MessageBird = new \MessageBird\Client(ACCESS_KEY); // Set your own API access key here.
 

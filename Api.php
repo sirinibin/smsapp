@@ -75,10 +75,10 @@ class Api
         exit;
     }
 
-    public function sendResponse($data)
+    public function sendResponse($data,$message_length)
     {
         header('Content-Type: application/json ');
-        $this->success_response = array_merge($this->success_response, ['result' => (array)$data]);
+        $this->success_response = array_merge($this->success_response, ['result' => (array)$data,'message_length'=>$message_length]);
         echo json_encode($this->success_response, JSON_PRETTY_PRINT);
         exit;
     }
