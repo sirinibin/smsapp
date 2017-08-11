@@ -43,7 +43,7 @@ class Sms
         }
 
 
-        if (strlen($this->messages[0]) <= $this->chars_split_at && !isset($this->messages[1])) {
+        if (strlen($this->messages[0]) <= 160 && !isset($this->messages[1])) {
 
             return $this->sendMessage();
         } else {
@@ -55,7 +55,7 @@ class Sms
     private function splitMessage()
     {
 
-        if (strlen($this->messages[0]) <= $this->chars_split_at)
+        if (strlen($this->messages[0]) <= 160)
             return false;
 
         $message = trim($this->messages[0]);
