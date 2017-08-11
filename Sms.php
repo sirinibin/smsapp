@@ -17,7 +17,7 @@ class Sms
     {
         $this->recipients = $recipients;
         $this->messages[] = $message;
-        $this->$originator = $originator;
+        $this->originator = $originator;
 
         $this->splitMessage();
 
