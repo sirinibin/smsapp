@@ -1,6 +1,6 @@
 <?php
-define('ENV', 'test');
-//define('ENV', 'live');
+//define('ENV', 'test');
+define('ENV', 'live');
 
 if (ENV == 'test') {
 

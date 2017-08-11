@@ -11,6 +11,8 @@ class Sms
 
     public $messageLength=0;
 
+    public $chars_split_at=153;
+
     function __construct($recipients, $message, $originator)
     {
         $this->recipients = $recipients;
@@ -41,7 +43,7 @@ class Sms
         }
 
 
-        if (strlen($this->messages[0]) <= 160 && !isset($this->messages[1])) {
+        if (strlen($this->messages[0]) <= $this->chars_split_at && !isset($this->messages[1])) {
 
             return $this->sendMessage();
         } else {
@@ -53,30 +55,20 @@ class Sms
     private function splitMessage()
     {
 
-        if (strlen($this->messages[0]) <= 160)
+        if (strlen($this->messages[0]) <= $this->chars_split_at)
             return false;
 
         $message = trim($this->messages[0]);
 
         $this->messages = [];
 
-        $str = trim(substr($message, 0, 160)); //160
-
-        if (!empty($str))
-            $this->messages[] = $str;
-
-        $str = trim(substr($message, 160, 146)); // 160 + 146= 306
-
-        if (!empty($str))
-            $this->messages[] = $str;
-
-        $i = 306;
+        $i = 0;
         while ($i < 1377) {
 
-            $str = trim(substr($message, $i, 153)); // 306 + 153= 459,459 + 153= 612,612 + 153= 765,765 + 153= 918,765 + 153= 1071,765 + 153= 1224,1224 + 153= 1377
+            $str = trim(substr($message, $i, $this->chars_split_at)); // 306 + 153= 459,459 + 153= 612,612 + 153= 765,765 + 153= 918,765 + 153= 1071,765 + 153= 1224,1224 + 153= 1377
             if (!empty($str))
                 $this->messages[] = $str;
-            $i += 153;
+            $i += $this->chars_split_at;
         }
 
         return $this->messages;
@@ -149,7 +141,7 @@ class Sms
 
             $Message = new \MessageBird\Objects\Message();
             $Message->originator = $this->originator;
-            //$Message->setBinarySms("HEADER", "test");
+
             $Message->type = "binary";
             $Message->recipients = $this->recipients;
             $Message->body = $m;
@@ -165,11 +157,20 @@ class Sms
             if ($message_index < 10) {
                 $message_index = "0" . $message_index;
             }
+
+            //Field 1 (1 octet): Length of User Data Header, in this case 05.
+            //Field 2 (1 octet): Information Element Identifier, equal to 00 (Concatenated short messages, 8-bit reference number)
+            //Field 3 (1 octet): Length of the header, excluding the first two fields; equal to 03
+            //Field 4 (1 octet): 00-FF, CSMS reference number, must be same for all the SMS parts in the CSMS
+            //Field 5 (1 octet): 00-FF, total number of parts.
+            //Field 6 (1 octet): 00-FF, this part's number in the sequence.
+
             $udh = '05000307' . $message_count . $message_index;
 
             $Message->typeDetails = [
                 "udh" => $udh
             ];
+            $Message->setBinarySms($udh,$m);
 
             try {
                 $MessageResult[] = $MessageBird->messages->create($Message);

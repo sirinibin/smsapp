@@ -9,7 +9,6 @@ $api = new Api;
 $sms = new Sms($api->recipients, $api->message, $api->originator);
 
 $result = $sms->send();
-$sms->messageLength;
 
 $api->sendResponse($result,$sms->messageLength);
 
