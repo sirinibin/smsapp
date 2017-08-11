@@ -11,7 +11,7 @@ class Sms
 
     public $messageLength=0;
 
-    public $chars_split_at=153;
+    public $chars_split_at=153; //string concatenation for messages larger than 160 chars
 
     function __construct($recipients, $message, $originator)
     {
